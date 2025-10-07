@@ -1,22 +1,29 @@
-#!/usr/bin/env node
+!/usr/bin/env node
 const { program } = require("commander");
 const fs = require("fs");
 
 program
-  .option("-i, --input <path>", "Input file path")
+  .requiredOption("-i, --input <path>", "Input file path")
   .option("-o, --output <path>", "Output file path")
   .option("-d, --display", "Display result in console")
   .option("-s, --survived", "Show only survived passengers")
-  .option("-a, --age", "Show passenger age");
+  .option("-a, --age", "Show passenger age")
+  .configureOutput({
+  outputError: (str, write) => {
+    if (str.startsWith('error: required option') || str.startsWith('error: option \'-i' ))
+      write('Please, specify input file\n');
 
+    else if (str.startsWith('error: option \'-o'))
+      write('Please, specify output file\n');
+
+    else
+      write(str);
+    }
+
+  });
 program.parse(process.argv);
 
 const options = program.opts();
-
-if (!options.input) {
-  console.error("Please, specify input file");
-  process.exit(1);
-}
 
 if (!fs.existsSync(options.input)) {
   console.error("Cannot find input file");
